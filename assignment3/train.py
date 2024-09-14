@@ -28,15 +28,15 @@ warnings.filterwarnings('ignore')
 
 def main():
     args = {
-        'save_model_dir': './results',
-        'device': 'cuda' if torch.cuda.is_available() else 'cpu',
-        'dataset_root': './data_mini/',
+        'save_model_dir': r'C:\Users\Michalina\assignment3\results',
+        'device': 'cuda',
+        'dataset_root': r'C:\Users\Michalina\assignment3\assignment3\data_mini',
         'sampling_rate': 16000,
         'sample_length': 5,  # in second
-        'num_workers': 0,  # Number of additional thread for data loading. A large number may freeze your laptop.
-
+        'num_workers': 4,  # Number of additional thread for data loading. A large number may freeze your laptop.
+        'annotation_path': 'C:/Users/Michalina/assignment3/assignment3/data_mini/annotations.json',
         'frame_size': 0.02,
-        'batch_size': 8,  # 32 produce best result so far
+        'batch_size': 32,  # 32 produce best result so far
     }
 
     ast_model = AST_Model(args['device'])
@@ -58,7 +58,7 @@ class AST_Model:
     This is main class for training model and making predictions.
     '''
 
-    def __init__(self, device="cpu", model_path=None):
+    def __init__(self, device="cuda", model_path=None):
         # Initialize model
         self.device = device
         self.model = BaseCNN_mini(feat_dim=256).to(self.device)
@@ -74,6 +74,7 @@ class AST_Model:
         if not os.path.exists(save_model_dir):
             os.mkdir(save_model_dir)
 
+        weights = {'onset': 1.0, 'offset': 1.0, 'octave': 2.0, 'pitch': 2.0}
         optimizer = optim.AdamW(self.model.parameters(), lr=learning_params['lr'])
         loss_func = LossFunc(device=self.device)
         metric = Metrics(loss_func)
@@ -282,34 +283,41 @@ class AST_Model:
 
 
 class LossFunc:
-    def __init__(self, device):
+    def __init__(self, device, weights=None):
+        if weights is None:
+            weights = dict(onset=1.0, offset=1.0, octave=1.0, pitch=1.0)
         self.device = device
-        '''
-        - We will use Binary Cross Entropy for onset and offset classification, with a weight of 15 for positive labels 
-        (achieve this by specifying positive weight when constructing the loss function object)
-        Note that raw model output has not been normalized by softmax/sigmoid function. Consider loss functions that takes logits as input.
-        - Cross Entropy Loss for octave and pitch class classification.
+        self.weights = weights
 
-        YOUR CODE: finish the __init__ and get_loss function.
-        '''
-        self.onset_criterion = None
-        self.offset_criterion = None
-        self.octave_criterion = None
-        self.pitch_criterion = None
+        # Initialize loss functions with pos_weight for onset and offset (248 frames marked with 0 if offset, if onset sand 2 are positive)
+        #Many negative cases => we habe imbalanced dataset => outweigh it by pos_weight
+        pos_weight_tensor = torch.tensor([15]).to(device)
+        self.onset_criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight_tensor)
+        self.offset_criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight_tensor)
+
+        # Cross Entropy Loss for octave and pitch class classification
+        self.octave_criterion = nn.CrossEntropyLoss()
+        self.pitch_criterion = nn.CrossEntropyLoss()
 
     def get_loss(self, out, tgt):
-        '''
-        This function receive model output and target for onset, offset, octave, and pitch class, then
-        compute loss for the 4 pairs respectively,
-        finally add them together (simple addition, no weight) as the total loss
-        Return: (total loss, onset loss, offset loss, octave loss, pitch loss)
-        '''
+        out_onset, out_offset, out_octave, out_pitch = out
+        tgt_onset, tgt_offset, tgt_octave, tgt_pitch = tgt
 
-        '''
-        YOUR CODE HERE: finish the function
-        '''
+        onset_loss = self.onset_criterion(out_onset.squeeze(-1), tgt_onset.float().squeeze(-1))
+        offset_loss = self.offset_criterion(out_offset.squeeze(-1), tgt_offset.float().squeeze(-1))
+        octave_loss = self.octave_criterion(out_octave.view(-1, out_octave.shape[-1]), tgt_octave.view(-1))
+        pitch_loss = self.pitch_criterion(out_pitch.view(-1, out_pitch.shape[-1]), tgt_pitch.view(-1))
 
-        return None
+        # Weighted sum of losses
+        total_loss = (self.weights['onset'] * onset_loss +
+                      self.weights['offset'] * offset_loss +
+                      self.weights['octave'] * octave_loss +
+                      self.weights['pitch'] * pitch_loss)
+
+        return total_loss, onset_loss, offset_loss, octave_loss, pitch_loss
+
+
+from sklearn.metrics import f1_score, accuracy_score
 
 
 class Metrics:
@@ -328,19 +336,21 @@ class Metrics:
             out_on, out_off, out_oct, out_pitch = out
             tgt_on, tgt_off, tgt_oct, tgt_pitch = tgt
 
-            if losses == None:
+            if losses is None:
                 losses = self.loss_func.get_loss(out, tgt)
 
-            '''
-            YOUR CODE HERE: compute the four metrics below.
-            NOTE: When computing F1, only consider possitive class=1. 
-            Don't compute F1 for negative class, neither average the F1 of possitive class with that of the negative class.
-            '''
-            onset_f1 = None
-            offset_f1 = None
-            oct_acc = None
-            pitch_acc = None
+            # Compute the F1 score for onset and offset
+            onset_f1 = f1_score(tgt_on.gpu().numpy(), (torch.sigmoid(out_on) > 0.3).gpu().numpy(), average='weighted',
+                                pos_label=1)
+            offset_f1 = f1_score(tgt_off.gpu().numpy(), (torch.sigmoid(out_off) > 0.3).gpu().numpy(), average='weighted',
+                                 pos_label=1)
 
+            # Compute the accuracy for octave and pitch class
+            oct_acc = (torch.argmax(out_oct, dim=2) == tgt_oct).float().mean().item()
+            pitch_acc = (torch.argmax(out_pitch, dim=2) == tgt_pitch).float().mean().item()
+
+
+            # Store batch metrics
             batch_metric = {
                 'loss': losses[0].item(),
                 'onset_loss': losses[1].item(),

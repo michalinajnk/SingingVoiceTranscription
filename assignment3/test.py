@@ -18,29 +18,25 @@ warnings.filterwarnings('ignore')
 
 def main():
     args = {
-        'dataset_root': './data_mini/',
-        'test_dataset_path': './data_mini/test',
-        'output_dir': './results',
-        'output_path': './results/predictions.json',
-        'save_model_dir': './results',
+        'dataset_root': r'C:\Users\Michalina\assignment3\assignment3\data_mini',
+        'test_dataset_path': r'C:\Users\Michalina\assignment3\assignment3\data_mini\test',
+        'output_dir': r'C:\Users\Michalina\assignment3\results',
+        'output_path': r'C:\Users\Michalina\assignment3\results\predictions.json',
+        'save_model_dir': r'C:\Users\Michalina\assignment3\results',
         'sampling_rate': 16000,
         'sample_length': 5,  # in second
-        'num_workers': 0,
-        'onset_thres': 0.67,
-        'offset_thres': 0.5,
-
+        'num_workers': 4,
+        'onset_thres': 0.67, #it was 0.67
+        'offset_thres': 0.5, #it was 0.5
         'batch_size': 1,
-
-        'annotation_path': './data/annotations.json',
-        'predicted_json_path': './results/predictions.json',
-        'tolerance': 0.1,
-
+        'annotation_path': 'C:/Users/Michalina/assignment3/assignment3/data_mini/annotations.json',
+        'predicted_json_path': r'C:\Users\Michalina\assignment3\results\predictions.json',
+        'tolerance': 0.3,
         'frame_size': 0.02,
-        'device': 'cuda' if torch.cuda.is_available() else 'cpu',
+        'device': 'cuda',
     }
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+    device = torch.device('cuda')
     best_model_path = os.path.join(args['save_model_dir'], 'best_model.pth')
     model = AST_Model(device, best_model_path)
 

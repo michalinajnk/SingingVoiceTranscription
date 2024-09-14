@@ -6,9 +6,9 @@ from mir_eval import transcription, io, util
 
 def main():
     args = {
-        'annotation_path': './data/annotations.json',
-        'predicted_json_path': './results/predictions.json',
-        'tolerance': 0.1,
+        'annotation_path': r'C:\Users\Michalina\assignment3\assignment3\data_mini\annotations.json',
+        'predicted_json_path': r'C:\Users\Michalina\assignment3\results\predictions.json',
+        'tolerance': 0.2,
     }
 
     my_eval = MirEval()
