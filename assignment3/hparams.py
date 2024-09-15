@@ -9,7 +9,7 @@ import torch
 class Hparams:
     args = {
         
-        'save_model_dir': r'C:\Users\Michalina\assignment3\results\lr1e-3',
+        'save_model_dir': r'clr1e-3',
         'device':  'cuda',
         'dataset_root': r'C:\Users\Michalina\assignment3\assignment3\data_mini',
         'sampling_rate': 16000, # Please keep the sampling rate unchanged
