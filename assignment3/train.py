@@ -28,13 +28,13 @@ warnings.filterwarnings('ignore')
 
 def main():
     args = {
-        'save_model_dir': r'C:\Users\Michalina\assignment3\results',
+        'save_model_dir': r'/content/SingingVoiceTranscription/assignment3/results',
         'device': 'cuda',
-        'dataset_root': r'C:\Users\Michalina\assignment3\assignment3\data_mini',
+        'dataset_root': r'/content/SingingVoiceTranscription/assignment3/data_mini',
         'sampling_rate': 16000,
         'sample_length': 5,  # in second
         'num_workers': 4,  # Number of additional thread for data loading. A large number may freeze your laptop.
-        'annotation_path': 'C:/Users/Michalina/assignment3/assignment3/data_mini/annotations.json',
+        'annotation_path': '/content/SingingVoiceTranscription/assignment3/data_mini/annotations.json',
         'frame_size': 0.02,
         'batch_size': 32,  # 32 produce best result so far
     }

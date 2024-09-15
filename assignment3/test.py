@@ -18,19 +18,19 @@ warnings.filterwarnings('ignore')
 
 def main():
     args = {
-        'dataset_root': r'C:\Users\Michalina\assignment3\assignment3\data_mini',
-        'test_dataset_path': r'C:\Users\Michalina\assignment3\assignment3\data_mini\test',
-        'output_dir': r'C:\Users\Michalina\assignment3\results',
-        'output_path': r'C:\Users\Michalina\assignment3\results\predictions.json',
-        'save_model_dir': r'C:\Users\Michalina\assignment3\results',
+        'dataset_root': r'/content/SingingVoiceTranscription/assignment3/data_mini',
+        'test_dataset_path': r'/content/SingingVoiceTranscription/assignment3/data_mini/test',
+        'output_dir': r'/content/SingingVoiceTranscription/assignment3/results',
+        'output_path': r'/content/SingingVoiceTranscription/assignment3/results/predictions.json',
+        'save_model_dir': r'/content/SingingVoiceTranscription/assignment3/results',
         'sampling_rate': 16000,
         'sample_length': 5,  # in second
         'num_workers': 4,
         'onset_thres': 0.67, #it was 0.67
         'offset_thres': 0.5, #it was 0.5
         'batch_size': 1,
-        'annotation_path': 'C:/Users/Michalina/assignment3/assignment3/data_mini/annotations.json',
-        'predicted_json_path': r'C:\Users\Michalina\assignment3\results\predictions.json',
+        'annotation_path': '/content/SingingVoiceTranscription/assignment3/data_mini/annotations.json',
+        'predicted_json_path': r'/content/SingingVoiceTranscription/assignment3/results/predictions.json',
         'tolerance': 0.3,
         'frame_size': 0.02,
         'device': 'cuda',

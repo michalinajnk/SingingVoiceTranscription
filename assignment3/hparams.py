@@ -11,11 +11,11 @@ class Hparams:
         
         'save_model_dir': r'clr1e-3',
         'device':  'cuda',
-        'dataset_root': r'C:\Users\Michalina\assignment3\assignment3\data_mini',
+        'dataset_root': r'/content/SingingVoiceTranscription/assignment3/data_mini',
         'sampling_rate': 16000, # Please keep the sampling rate unchanged
         'sample_length': 5,  # in second
         'num_workers': 8,  # Number of additional thread for data loading. When running on laptop, set to 0.
-        'annotation_path': r'C:\Users\Michalina\assignment3\assignment3\data_mini\annotations.json',
+        'annotation_path': r'/content/SingingVoiceTranscription/assignment3/data_mini/annotations.json',
         'frame_size': 0.02,
         'batch_size': 16,
     }

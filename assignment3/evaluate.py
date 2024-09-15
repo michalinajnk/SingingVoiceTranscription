@@ -6,8 +6,8 @@ from mir_eval import transcription, io, util
 
 def main():
     args = {
-        'annotation_path': r'C:\Users\Michalina\assignment3\assignment3\data_mini\annotations.json',
-        'predicted_json_path': r'C:\Users\Michalina\assignment3\results\predictions.json',
+        'annotation_path': r'/content/SingingVoiceTranscription/assignment3/data_mini/annotations.json',
+        'predicted_json_path': r'/content/SingingVoiceTranscription/assignment3/results/predictions.json',
         'tolerance': 0.2,
     }
 
